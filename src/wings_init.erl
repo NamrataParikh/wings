@@ -12,7 +12,7 @@
 %%
 
 -module(wings_init).
--export([init/0]).
+-export([init/0, gl_attributes/0]).
 
 -define(NEED_OPENGL, 1).
 -define(NEED_ESDL, 1).
@@ -23,6 +23,15 @@
 -define(WX_GL_SAMPLES,18).         %% 4 for 2x2 antialiasing supersampling on most graphics cards
 -endif.
 
+gl_attributes() ->
+    [?WX_GL_RGBA,
+     ?WX_GL_MIN_RED,8,?WX_GL_MIN_GREEN,8,?WX_GL_MIN_BLUE,8,
+     ?WX_GL_DEPTH_SIZE, 24, ?WX_GL_STENCIL_SIZE, 8,
+     ?WX_GL_DOUBLEBUFFER,
+     ?WX_GL_SAMPLE_BUFFERS,1,
+     ?WX_GL_SAMPLES, 4,
+     0].
+
 init() ->
     wx:new(),
     macosx_workaround(),
@@ -32,15 +41,8 @@ init() ->
     TopSize = wings_pref:get_value(window_size),
     Frame = wxFrame:new(wx:null(), -1, "Wings 3D", [{size, TopSize}]),
 
-    GLAttrs = [?WX_GL_RGBA,
-	       ?WX_GL_MIN_RED,8,?WX_GL_MIN_GREEN,8,?WX_GL_MIN_BLUE,8,
-	       ?WX_GL_DEPTH_SIZE, 24, ?WX_GL_STENCIL_SIZE, 8,
-	       ?WX_GL_DOUBLEBUFFER,
-	       ?WX_GL_SAMPLE_BUFFERS,1,
-	       ?WX_GL_SAMPLES, 4,
-	       0],
     Canvas = wxGLCanvas:new(Frame, [
-				    {attribList, GLAttrs},
+				    {attribList, gl_attributes()},
 				    {style,
 				     %% Let us handle redrawing (GTK)
 				     ?wxTRANSPARENT_WINDOW bor
